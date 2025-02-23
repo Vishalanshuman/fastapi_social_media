@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from .user import UserResponse
 from .comments import CommentResponse
+from .like import LikeResponse
 from typing import List
 from datetime import datetime
 
@@ -13,6 +14,7 @@ class PostResponse(CreatePost):
     id: int
     author:UserResponse
     comments:List[CommentResponse]
+    likes:List[LikeResponse]
     created_at:datetime
 
     class Config:

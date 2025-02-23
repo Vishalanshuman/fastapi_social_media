@@ -1,5 +1,7 @@
 import os
 import shutil
+from datetime import datetime
+from config.settings.local import Config
 from fastapi import APIRouter, Depends, HTTPException,status,File,UploadFile
 from sqlalchemy.orm import Session,joinedload
 from config.database import get_db
@@ -74,9 +76,9 @@ def update_profile_pic(
         shutil.copyfileobj(profile_pic.file, buffer)
     
     previous_user = db.query(User).filter(User.id == current_user.id).first()
-    previous_user.profile_pic = file_location  # Save file path in DB
+    previous_user.profile_pic = f"{Config.DOMAIN_NAME}/{file_location}"
     
     db.commit()
     db.refresh(previous_user)
     
-    return {"message": "Profile picture updated successfully", "profile_pic": file_location}
+    return {"message": "Profile picture updated successfully", "profile_pic":  previous_user.profile_pic }

@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException,status,File,UploadFile,For
 from sqlalchemy.orm import Session,joinedload
 from config.database import get_db
 from config.schemas import CreatePost,UpdatePost,PostResponse
-from config.models import User,Post,Comment
+from config.models import User,Post,Comment,Like
+from config.settings import Config
 from typing import List
 from config.auth import get_current_user
 
@@ -32,7 +33,7 @@ def create_post(
     new_post=Post(
         user_id=current_user.id,
         content=content,
-        media=file_location
+        media=f"{Config.DOMAIN_NAME}/{file_location}"
     )
     db.add(new_post)
     db.commit()
@@ -80,7 +81,7 @@ def update_post(post_id:int,content:str=Form(None),    media: UploadFile = File(
         file_location = f"{UPLOAD_DIR}{current_user.id}_post_{random.randint(1,9999)}.{file_extension}"
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(media.file, buffer)
-        post.media=file_location
+        post.media=f"{Config.DOMAIN_NAME}/{file_location}"
 
     db.commit()
     db.refresh(post)
@@ -96,7 +97,8 @@ def get_all_posts(
         db.query(Post)
         .options(
             joinedload(Post.author), 
-            joinedload(Post.comments).joinedload(Comment.commented_by)  # ✅ Ensure user is loaded
+            joinedload(Post.comments).joinedload(Comment.commented_by),
+            joinedload(Post.likes).joinedload(Like.liked_by)  
         )
         .all()
     )

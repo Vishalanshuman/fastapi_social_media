@@ -7,10 +7,13 @@ class UserCreate(BaseModel):
     email: str
     password: str
     profile_pic: Optional[str]=None
-    created_at:datetime
 
-class UserResponse(UserCreate):
+class UserResponse(BaseModel):
     id: int
+    name: str
+    email: str
+    profile_pic: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True  
